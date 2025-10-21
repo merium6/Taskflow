@@ -1,5 +1,10 @@
 using TaskFlow.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using TaskFlow.Core.Interfaces;
+using TaskFlow.Core.Services.Interfaces;
+using TaskFlow.Infrastructure.Repositories;
+using TaskFlow.Infrastructure.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +19,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRespository>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
