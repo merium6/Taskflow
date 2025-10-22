@@ -1,4 +1,5 @@
-﻿using TaskFlow.Core.Entities;
+﻿using Taskflow.API.Core.Interfaces;
+using TaskFlow.Core.Entities;
 using TaskFlow.Core.Interfaces;
 using TaskFlow.Core.Services.Interfaces;
 
@@ -6,25 +7,44 @@ namespace TaskFlow.Infrastructure.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUnitOfWork unitOfWork)
         {
-            _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<User> CreateAsync(User user)
         {
-            await _userRepository.AddAsync(user);
+            await _unitOfWork.Users.AddAsync(user);
+            await _unitOfWork.CompleteAsync();
             return user;
         }
 
-        public async Task DeleteAsync(int id) => await _userRepository.DeleteAsync(id);
+        public async Task<IEnumerable<User>> GetAllAsync()
+        {
+            return await _unitOfWork.Users.GetAllAsync();
+        }
 
-        public async Task<IEnumerable<User>> GetAllAsync() => await _userRepository.GetAllAsync();
+        public async Task<User?> GetByIdAsync(int id)
+        {
+            return await _unitOfWork.Users.GetByIdAsync(id);
+        }
 
-        public async Task<User?> GetByIdAsync(int id) => await _userRepository.GetByIdAsync(id);
+        public async Task UpdateAsync(User user)
+        {
+            _unitOfWork.Users.Update(user);
+            await _unitOfWork.CompleteAsync();
+        }
 
-        public async Task UpdateAsync(User user) => await _userRepository.UpdateAsync(user);
+        public async Task DeleteAsync(int id)
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(id);
+            if (user != null)
+            {
+                _unitOfWork.Users.Remove(user);
+                await _unitOfWork.CompleteAsync();
+            }
+        }
     }
 }
