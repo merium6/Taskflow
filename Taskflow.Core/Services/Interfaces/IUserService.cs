@@ -11,7 +11,7 @@ namespace TaskFlow.Core.Services.Interfaces
     {
         Task<IEnumerable<ApplicationUser>> GetAllAsync();
         Task<ApplicationUser?> GetByIdAsync(string id);
-        Task<ApplicationUser> CreateAsync(ApplicationUser user, string password);
+        Task<ApplicationUser> CreateAsync(ApplicationUser user);
         Task UpdateAsync(ApplicationUser user);
         Task DeleteAsync(string id);
     }
