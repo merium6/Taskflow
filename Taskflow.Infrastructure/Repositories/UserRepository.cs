@@ -1,51 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.EntityFrameworkCore;
-using TaskFlow.Core.Entities;
+﻿using Microsoft.AspNetCore.Identity;
 using TaskFlow.Core.Interfaces;
-using TaskFlow.Infrastructure.Data;
+using TaskFlow.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace TaskFlow.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly AppDbContext _context;
-        public UserRepository(AppDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public UserRepository(UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _userManager = userManager;
         }
 
-        public async Task AddAsync(User user)
+        public async Task<IEnumerable<ApplicationUser>> GetAllAsync()
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            return await _userManager.Users.ToListAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<ApplicationUser?> GetByIdAsync(string id)
         {
-            var user = await _context.Users.FindAsync(id);
+            return await _userManager.FindByIdAsync(id);
+        }
+
+        public async Task AddAsync(ApplicationUser user, string password)
+        {
+            await _userManager.CreateAsync(user, password);
+        }
+
+        public async Task UpdateAsync(ApplicationUser user)
+        {
+            await _userManager.UpdateAsync(user);
+        }
+
+        public async Task DeleteAsync(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
             if (user != null)
-            {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        public async Task<IEnumerable<User>> GetAllAsync() =>
-            await _context.Users.ToListAsync();
-
-        public async Task<User?> GetByIdAsync(int id) =>
-            await _context.Users.FindAsync(id);
-
-        public async Task UpdateAsync(User user)
-        {
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+                await _userManager.DeleteAsync(user);
         }
     }
 }
-

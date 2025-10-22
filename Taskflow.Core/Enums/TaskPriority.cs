@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace Taskflow.Core.Enums
 {
-
-    public enum TasksStatus
+    public enum TaskPriority
     {
-        Pending,
-        InProgress,
-        Completed,
-        Blocked
+        Low,
+        Medium,
+        High,
+        Critical
     }
-
-
 }

@@ -1,20 +1,20 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using TaskFlow.Core.Entities;
 
 namespace TaskFlow.Core.Interfaces
 {
     public interface IUserRepository
     {
-        Task<User?> GetByIdAsync(int id);
-        Task<IEnumerable<User>> GetAllAsync();
-        Task AddAsync(User user);
-        Task UpdateAsync(User user);
-        Task DeleteAsync(int id);
+        Task<ApplicationUser?> GetByIdAsync(string id);
+        Task<IEnumerable<ApplicationUser>> GetAllAsync();
+        Task AddAsync(ApplicationUser user, string password);
+        Task UpdateAsync(ApplicationUser user);
+        Task DeleteAsync(string id);
     }
 }
 

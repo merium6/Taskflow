@@ -6,14 +6,12 @@ using System.Threading.Tasks;
 
 namespace Taskflow.Core.Enums
 {
-
-    public enum TasksStatus
+    public enum ProjectStatus
     {
-        Pending,
+        Planned,
         InProgress,
         Completed,
-        Blocked
+        OnHold,
+        Cancelled
     }
-
-
 }
