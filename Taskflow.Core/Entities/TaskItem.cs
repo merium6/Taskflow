@@ -1,26 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 using Taskflow.Core.Enums;
 
 namespace TaskFlow.Core.Entities
 {
     public class TaskItem
     {
+        [Key]
         public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public TasksStatus Status { get; set; } = TasksStatus.ToDo;
-        public DateTime? DueDate { get; set; }
 
-        // Relationships
+        [Required]
+        [MaxLength(150)]
+        public string Title { get; set; } = string.Empty;
+
+        public string? Description { get; set; }
+
+        public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+        public TasksStatus Status { get; set; } = TasksStatus.Pending;
+
+        public DateTime DueDate { get; set; } = DateTime.UtcNow.AddDays(7);
+
         public int ProjectId { get; set; }
         public Project? Project { get; set; }
 
-        public int? AssignedUserId { get; set; }
-        public User? AssignedUser { get; set; }
-    }
-}
+        public string? AssignedToId { get; set; }
+        public ApplicationUser? AssignedTo { get; set; }
 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? CompletedAt { get; set; }
+    }
+
+    
+
+   
+}

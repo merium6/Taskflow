@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Core.Entities;
 
 namespace TaskFlow.Infrastructure.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskItem> TaskItems { get; set; }
 
@@ -20,17 +15,17 @@ namespace TaskFlow.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.Projects)
-                .WithOne(p => p.CreatedByUser)
-                .HasForeignKey(p => p.CreatedByUserId);
+            // Relationships
+            modelBuilder.Entity<ApplicationUser>()
+                .HasMany(u => u.ProjectsCreated)
+                .WithOne(p => p.CreatedBy)
+                .HasForeignKey(p => p.CreatedById);
 
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.AssignedTasks)
-                .WithOne(t => t.AssignedUser)
-                .HasForeignKey(t => t.AssignedUserId)
+            modelBuilder.Entity<ApplicationUser>()
+                .HasMany(u => u.TasksAssigned)
+                .WithOne(t => t.AssignedTo)
+                .HasForeignKey(t => t.AssignedToId)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
-

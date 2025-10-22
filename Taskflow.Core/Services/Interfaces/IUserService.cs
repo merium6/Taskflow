@@ -9,11 +9,11 @@ namespace TaskFlow.Core.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<IEnumerable<User>> GetAllAsync();
-        Task<User?> GetByIdAsync(int id);
-        Task<User> CreateAsync(User user);
-        Task UpdateAsync(User user);
-        Task DeleteAsync(int id);
+        Task<IEnumerable<ApplicationUser>> GetAllAsync();
+        Task<ApplicationUser?> GetByIdAsync(string id);
+        Task<ApplicationUser> CreateAsync(ApplicationUser user, string password);
+        Task UpdateAsync(ApplicationUser user);
+        Task DeleteAsync(string id);
     }
 }
 

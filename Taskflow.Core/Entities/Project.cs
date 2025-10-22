@@ -1,22 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using Taskflow.Core.Enums;
 
 namespace TaskFlow.Core.Entities
 {
     public class Project
     {
+        [Key]
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(150)]
+        public string Title { get; set; } = string.Empty;
+
         public string? Description { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
-        // Relationships
-        public int CreatedByUserId { get; set; }
-        public User? CreatedByUser { get; set; }
+        public DateTime StartDate { get; set; } = DateTime.UtcNow;
+        public DateTime? EndDate { get; set; }
+
+        public ProjectStatus Status { get; set; } = ProjectStatus.Planned;
+
+        public string? CreatedById { get; set; }
+        public ApplicationUser? CreatedBy { get; set; }
+
         public ICollection<TaskItem>? Tasks { get; set; }
-    }
-}
 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
+    }
+
+  
+}

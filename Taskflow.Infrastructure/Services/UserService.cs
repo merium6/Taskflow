@@ -1,50 +1,43 @@
-﻿using Taskflow.API.Core.Interfaces;
-using TaskFlow.Core.Entities;
+﻿using TaskFlow.Core.Entities;
 using TaskFlow.Core.Interfaces;
 using TaskFlow.Core.Services.Interfaces;
+
 
 namespace TaskFlow.Infrastructure.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserRepository _userRepository;
 
-        public UserService(IUnitOfWork unitOfWork)
+        public UserService(IUserRepository userRepository)
         {
-            _unitOfWork = unitOfWork;
+            _userRepository = userRepository;
         }
 
-        public async Task<User> CreateAsync(User user)
+        public async Task<ApplicationUser> CreateAsync(ApplicationUser user, string password)
         {
-            await _unitOfWork.Users.AddAsync(user);
-            await _unitOfWork.CompleteAsync();
+            await _userRepository.AddAsync(user, password);
             return user;
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync()
+        public async Task<IEnumerable<ApplicationUser>> GetAllAsync()
         {
-            return await _unitOfWork.Users.GetAllAsync();
+            return await _userRepository.GetAllAsync();
         }
 
-        public async Task<User?> GetByIdAsync(int id)
+        public async Task<ApplicationUser?> GetByIdAsync(string id)
         {
-            return await _unitOfWork.Users.GetByIdAsync(id);
+            return await _userRepository.GetByIdAsync(id);
         }
 
-        public async Task UpdateAsync(User user)
+        public async Task UpdateAsync(ApplicationUser user)
         {
-            _unitOfWork.Users.Update(user);
-            await _unitOfWork.CompleteAsync();
+            await _userRepository.UpdateAsync(user);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(string id)
         {
-            var user = await _unitOfWork.Users.GetByIdAsync(id);
-            if (user != null)
-            {
-                _unitOfWork.Users.Remove(user);
-                await _unitOfWork.CompleteAsync();
-            }
+            await _userRepository.DeleteAsync(id);
         }
     }
 }

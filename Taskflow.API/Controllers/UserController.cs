@@ -23,7 +23,7 @@ namespace Taskflow.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(string id)
         {
             var user = await _userService.GetByIdAsync(id);
             if (user == null)
@@ -32,14 +32,14 @@ namespace Taskflow.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] User user)
+        public async Task<IActionResult> Create([FromBody] ApplicationUser user,string password)
         {
-            var newUser = await _userService.CreateAsync(user);
+            var newUser = await _userService.CreateAsync(user, password);
             return CreatedAtAction(nameof(GetById), new { id = newUser.Id }, newUser);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] User user)
+        public async Task<IActionResult> Update(string id, [FromBody] ApplicationUser user)
         {
             if (id != user.Id)
                 return BadRequest();
@@ -49,7 +49,7 @@ namespace Taskflow.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(string id)
         {
             await _userService.DeleteAsync(id);
             return NoContent();
