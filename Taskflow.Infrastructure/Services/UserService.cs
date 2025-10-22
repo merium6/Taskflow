@@ -14,9 +14,9 @@ namespace TaskFlow.Infrastructure.Services
             _userRepository = userRepository;
         }
 
-        public async Task<ApplicationUser> CreateAsync(ApplicationUser user, string password)
+        public async Task<ApplicationUser> CreateAsync(ApplicationUser user)
         {
-            await _userRepository.AddAsync(user, password);
+            await _userRepository.AddAsync(user);
             return user;
         }
 

@@ -32,9 +32,9 @@ namespace Taskflow.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ApplicationUser user,string password)
+        public async Task<IActionResult> Create([FromBody] ApplicationUser user)
         {
-            var newUser = await _userService.CreateAsync(user, password);
+            var newUser = await _userService.CreateAsync(user);
             return CreatedAtAction(nameof(GetById), new { id = newUser.Id }, newUser);
         }
 
