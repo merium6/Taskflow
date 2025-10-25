@@ -38,24 +38,29 @@ namespace TaskFlow.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+                return BadRequest("User with this email already exists.");
+
             var user = new ApplicationUser
             {
                 UserName = model.Email,
                 Email = model.Email,
                 FullName = model.FullName,
-                PhoneNumber = model.PhoneNumber
+                PhoneNumber = model.PhoneNumber,
+                CreatedAt = DateTime.UtcNow
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
-
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            // Use requested role if valid, else default to "User"
-            var role = string.IsNullOrWhiteSpace(model.Role) ? "User" : model.Role;
+            var role = "User";
 
-            if (!await _userManager.IsInRoleAsync(user, role))
-                await _userManager.AddToRoleAsync(user, role);
+            if (model.Email.Equals("admin@taskflow.com", StringComparison.OrdinalIgnoreCase))
+                role = "Admin";
+
+            await _userManager.AddToRoleAsync(user, role);
 
             return Ok(new
             {
@@ -69,6 +74,7 @@ namespace TaskFlow.API.Controllers
                 }
             });
         }
+
 
 
         [HttpPost("login")]

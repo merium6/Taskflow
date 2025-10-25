@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Core.Entities;
 using TaskFlow.Core.Services.Interfaces;
 
@@ -6,6 +7,7 @@ namespace Taskflow.API.Controllers
 {
     [ApiController]
     [Route("api/users")]
+    [Authorize] 
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -16,6 +18,7 @@ namespace Taskflow.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAllAsync();
@@ -23,6 +26,7 @@ namespace Taskflow.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> GetById(string id)
         {
             var user = await _userService.GetByIdAsync(id);
@@ -32,6 +36,7 @@ namespace Taskflow.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] ApplicationUser user)
         {
             var newUser = await _userService.CreateAsync(user);
@@ -39,6 +44,7 @@ namespace Taskflow.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Update(string id, [FromBody] ApplicationUser user)
         {
             if (id != user.Id)
@@ -49,6 +55,7 @@ namespace Taskflow.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string id)
         {
             await _userService.DeleteAsync(id);
