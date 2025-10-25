@@ -38,7 +38,10 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(typeof(TaskFlow.API.Filters.ValidateModelAttribute));
+});
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.AddAuthentication(options =>
 {
