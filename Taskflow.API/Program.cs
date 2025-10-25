@@ -33,6 +33,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<JwtService>();
+
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 
