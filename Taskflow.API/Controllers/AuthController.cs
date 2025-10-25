@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Taskflow.API.DTOs.Auth;
 using TaskFlow.API.Models.Auth;
 using TaskFlow.Core.Entities;
+using TaskFlow.Infrastructure.Data;
 using TaskFlow.Infrastructure.Services;
 
 namespace TaskFlow.API.Controllers
@@ -16,15 +18,18 @@ namespace TaskFlow.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly JwtService _jwtService;
+        private readonly AppDbContext _context;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            JwtService jwtService)
+            JwtService jwtService,
+            AppDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
+            _context = context;
         }
 
         [HttpPost("register")]
@@ -81,13 +86,50 @@ namespace TaskFlow.API.Controllers
                 return Unauthorized("Invalid credentials");
 
             var roles = await _userManager.GetRolesAsync(user);
-            var token = _jwtService.GenerateToken(user, roles);
+            var accessToken = _jwtService.GenerateAccessToken(user, roles);
+            var refreshToken = _jwtService.GenerateRefreshToken(HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+
+            refreshToken.ApplicationUserId = user.Id;
+            using (var scope = HttpContext.RequestServices.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                context.RefreshTokens.Add(refreshToken);
+                await context.SaveChangesAsync();
+            }
 
             return Ok(new
             {
-                token,
+                accessToken,
+                refreshToken = refreshToken.Token,
+                expiresIn = 3600,
                 email = user.Email,
                 roles
+            });
+        }
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshRequestDto request)
+        {
+            var storedToken = await _context.RefreshTokens
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Token == request.RefreshToken);
+
+            if (storedToken == null || storedToken.IsExpired)
+                return Unauthorized("Invalid or expired refresh token.");
+
+            var roles = await _userManager.GetRolesAsync(storedToken.User!);
+            var newAccessToken = _jwtService.GenerateAccessToken(storedToken.User!, roles);
+            var newRefreshToken = _jwtService.GenerateRefreshToken(HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+
+            storedToken.Revoked = DateTime.UtcNow;
+            storedToken.ReplacedByToken = newRefreshToken.Token;
+
+            _context.RefreshTokens.Add(newRefreshToken);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken.Token
             });
         }
 
